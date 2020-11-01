@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	dh_auto_build -- CONFIG_FILE="/etc/whois.conf" HAVE_ICONV=1
+

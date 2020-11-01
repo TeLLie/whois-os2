@@ -1,0 +1,21 @@
+Source: whois
+Section: net
+Priority: standard
+Maintainer: Marco d'Itri <md@linux.it>
+Standards-Version: 4.5.0.3
+Rules-Requires-Root: no
+Build-Depends: debhelper (>= 10), gettext, pkg-config, libidn2-dev (>= 2.0.3)
+Vcs-Git: https://github.com/rfc1036/whois.git
+Vcs-Browser: https://github.com/rfc1036/whois
+
+Package: whois
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: intelligent WHOIS client
+ This package provides a commandline client for the WHOIS (RFC 3912)
+ protocol, which queries online servers for information such as contact
+ details for domains and IP address assignments.
+ It can intelligently select the appropriate WHOIS server for most queries.
+ .
+ The package also contains mkpasswd, a features-rich front end to the
+ password encryption function crypt(3).
