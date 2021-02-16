@@ -80,7 +80,8 @@
 .au	whois.auda.org.au
 .aw	whois.nic.aw
 .ax	whois.ax	# www.ax
-.az	WEB http://www.nic.az/
+.gov.az	WEB https://www.gov.az/
+.az	WEB http://whois.az/
 .ba	WEB http://www.nic.ba/stream/whois/
 .bb	WEB http://whois.telecoms.gov.bb/search_domain.php
 .bd	WEB http://www.registry.com.bd/whois.php
@@ -170,7 +171,7 @@
 .ht	whois.nic.ht
 .hu	whois.nic.hu
 .id	whois.id
-.ie	whois.iedr.ie
+.ie	whois.weare.ie
 .il	whois.isoc.org.il
 .im	whois.nic.im
 .in	whois.registry.in
@@ -366,6 +367,7 @@
 .xn--3hcrj9c		whois.registry.in	# India
 .xn--45br5cyl		whois.registry.in	# India
 .xn--45brj9c		whois.registry.in	# India, Bengali
+.xn--4dbrk0ce		whois.isoc.org.il	# Israel
 .xn--54b7fta0cc		NONE			# Bangladesh
 .xn--80ao21a		whois.nic.kz		# Kazakhstan
 .xn--90a3ac		whois.rnids.rs		# Serbia
