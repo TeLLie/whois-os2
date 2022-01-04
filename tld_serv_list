@@ -58,10 +58,10 @@
 .museum	whois.nic.museum
 .name	whois.nic.name
 .post	whois.dotpostregistry.net
-.pro	whois.afilias.net
+.pro	whois.nic.pro
 .tel	whois.nic.tel
 .travel	whois.nic.travel
-.xxx	whois.registrar.adult
+.xxx	whois.nic.xxx
 
 .ac	whois.nic.ac
 .ad	NONE		# www.nic.ad
@@ -344,7 +344,7 @@
 .vg	whois.nic.vg
 .vi	WEB https://secure.nic.vi/whois-lookup/
 .vn	WEB http://www.vnnic.vn/en
-.vu	whois.dnrs.neustar
+.vu	whois.dnrs.vu
 .wf	whois.nic.wf
 .ws	whois.website.ws
 .ye	NONE		# NIC? http://www.y.net.ye/services/domain_name.htm
