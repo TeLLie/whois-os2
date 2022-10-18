@@ -86,7 +86,7 @@
 .bb	WEB http://whois.telecoms.gov.bb/search_domain.php
 .bd	WEB http://www.registry.com.bd/whois.php
 .be	whois.dns.be
-.bf	NONE		# http://www.arce.bf/ http://www.onatel.bf/internet/domaine.htm
+.bf	whois.registre.bf	# http://www.arcep.bf/noms-de-domaine/
 .bg	whois.register.bg
 .bh	whois.nic.bh
 .bi	whois1.nic.bi
@@ -128,7 +128,7 @@
 .de	whois.denic.de
 .dj	NONE		# http://www.dj/
 .dk	whois.dk-hostmaster.dk
-.dm	whois.nic.dm
+.dm	whois.dmdomains.dm
 .do	whois.nic.do
 .dz	whois.nic.dz
 .ec	whois.nic.ec
@@ -140,7 +140,7 @@
 .et	NONE	# http://www.ethionet.et/
 .eu	whois.eu
 .fi	whois.fi
-.fj	whois.usp.ac.fj
+.fj	www.whois.fj
 .fk	NONE		# http://www.fidc.co.fk/
 .fm	whois.nic.fm
 .fo	whois.nic.fo
@@ -161,7 +161,7 @@
 .gr	WEB https://grweb.ics.forth.gr/public/whois
 .gs	whois.nic.gs
 .gt	WEB http://www.gt/
-.gu	WEB http://gadao.gov.gu/domainsearch.htm
+.gu	NONE
 .gw	WEB http://nic.gw/en/whois/
 .gy	whois.registry.gy
 .hk	whois.hkirc.hk
@@ -222,7 +222,7 @@
 .mq	whois.mediaserv.net
 .mr	whois.nic.mr
 .ms	whois.nic.ms
-.mt	WEB https://www.nic.org.mt/dotmt/ # whois.nic.org.mt is restricted
+.mt	whois.nic.org.mt
 .mu	whois.nic.mu
 .mv	NONE		# NIC? www.dhiraagu.com.mv
 .mw	whois.nic.mw
@@ -249,7 +249,7 @@
 .edu.ph	WEB http://services.ph.net/dns/query.pl
 .gov.ph	NONE	# http://dns.gov.ph/
 .ph	WEB https://whois.dot.ph/
-.pk	WEB http://www.pknic.net.pk/
+.pk	whois.pknic.net.pk
 .co.pl	whois.co.pl	# "unofficial" SLD
 .pl	whois.dns.pl
 .pm	whois.nic.pm
@@ -258,7 +258,7 @@
 .ps	whois.pnina.ps
 .pt	whois.dns.pt
 .pw	whois.nic.pw
-.py	WEB http://www.nic.py/consulta-datos.php
+.py	WEB https://www.nic.py/consultdompy.php
 .qa	whois.registry.qa
 .re	whois.nic.re
 .ro	whois.rotld.ro
