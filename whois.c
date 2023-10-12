@@ -494,12 +494,52 @@ const char *match_config_file(const char *s)
 }
 #endif
 
+/*
+ * Check if the argument is an autonomous system number in the form "ASnnnn"
+ * or "AS nnnn".
+ */
+int is_asn(const char *s, int allow_space, const char *suffix_separators)
+{
+    const char *p;
+    int max_numbers = 6;
+    int seen_number = 0;
+
+    if (!strncaseeq(s, "as", 2))
+	return 0;	 /* does not start with "as" (case insensitive) */
+
+    /* skip a single optional space */
+    p = s + 2;
+    if (allow_space && *p == ' ')
+	p++;
+
+    /* all numbers, but not too many */
+    while (*p) {
+	if (*p < '0' || *p > '9') {	/* not a number */
+	    if (!seen_number)
+		return 0;		/* just "as" with no numbers */
+	    if (suffix_separators && strchr(suffix_separators, *p))
+		return 1;		/* has a trailing separator */
+	    return 0;			/* has trailing garbage */
+	}
+
+	seen_number = 1;
+	if (max_numbers-- == 0)
+	    return 0;			/* too many numbers */
+	p++;
+    }
+
+    if (seen_number)
+	return 1;			/* a real ASN */
+    else
+	return 0;			/* trailing garbage */
+}
+
 /* Parses an user-supplied string and tries to guess the right whois server.
  * Returns a dynamically allocated buffer.
  */
 char *guess_server(const char *s)
 {
-    unsigned long ip, as32;
+    unsigned long ip;
     unsigned int i;
     const char *colon, *tld;
 
@@ -508,12 +548,8 @@ char *guess_server(const char *s)
 	unsigned long v6prefix, v6net;
 
 	/* RPSL hierarchical objects */
-	if (strncaseeq(s, "as", 2)) {
-	    if (isasciidigit(s[2]))
-		return strdup(whereas(atol(s + 2)));
-	    else
-		return strdup("");
-	}
+	if (is_asn(s, 0, ":"))
+	    return strdup(whereas(atol(s + 2)));
 
 	v6prefix = strtol(s, NULL, 16);
 
@@ -548,18 +584,13 @@ char *guess_server(const char *s)
 
     /* no dot and no hyphen means it's a NSI NIC handle or ASN (?) */
     if (!strpbrk(s, ".-")) {
-	if (strncaseeq(s, "as", 2) &&		/* it's an AS */
-		(isasciidigit(s[2]) || s[2] == ' '))
-	    return strdup(whereas(atol(s + 2)));
+	if (is_asn(s, 1, NULL))
+	    return strdup(whereas(atol(s + 2))); /* it's an AS */
 	if (*s == '!')	/* NSI NIC handle */
 	    return strdup("whois.networksolutions.com");
 	else
 	    return strdup("\x05"); /* probably a unknown kind of nic handle */
     }
-
-    /* ASN32? */
-    if (strncaseeq(s, "as", 2) && s[2] && (as32 = asn32_to_long(s + 2)) != 0)
-	return strdup(whereas32(as32));
 
     /* smells like an IP? */
     if ((ip = myinet_aton(s))) {
@@ -603,26 +634,19 @@ char *guess_server(const char *s)
     return strdup("\x05");
 }
 
-const char *whereas32(const unsigned long asn)
-{
-    int i;
-
-    for (i = 0; as32_assign[i].serv; i++)
-	if (asn >= as32_assign[i].first && asn <= as32_assign[i].last)
-	    return as32_assign[i].serv;
-    return "\x06";
-}
-
 const char *whereas(const unsigned long asn)
 {
     int i;
 
-    if (asn > 65535)
-	return whereas32(asn);
-
-    for (i = 0; as_assign[i].serv; i++)
-	if (asn >= as_assign[i].first && asn <= as_assign[i].last)
-	    return as_assign[i].serv;
+    if (asn > 65535) {
+	for (i = 0; as32_assign[i].serv; i++)
+	    if (asn >= as32_assign[i].first && asn <= as32_assign[i].last)
+		return as32_assign[i].serv;
+    } else {
+	for (i = 0; as_assign[i].serv; i++)
+	    if (asn >= as_assign[i].first && asn <= as_assign[i].last)
+		return as_assign[i].serv;
+    }
     return "\x06";
 }
 
@@ -688,18 +712,20 @@ char *queryformat(const char *server, const char *flags, const char *query)
     else if (strchr(query, ' ') || *flags) { }
     else if (streq(server, "whois.denic.de") && in_domain(query, "de"))
 	strcat(buf, "-T dn" DENIC_PARAM_ACE DENIC_PARAM_CHARSET " ");
-    else if (streq(server, "whois.dk-hostmaster.dk") && in_domain(query, "dk"))
+    else if ((streq(server, "whois.punktum.dk") ||
+		streq(server, "whois.dk-hostmaster.dk"))
+	    && in_domain(query, "dk"))
 	strcat(buf, "--show-handles ");
 
     /* mangle and add the query string */
     if (!isripe && streq(server, "whois.nic.ad.jp") &&
-	    strncaseeq(query, "AS", 2) && isasciidigit(query[2])) {
+	    is_asn(query, 1, NULL)) {
 	strcat(buf, "AS ");
 	strcat(buf, query + 2);
     }
     else if (!isripe && streq(server, "whois.arin.net") &&
 	    !strrchr(query, ' ')) {
-	if (strncaseeq(query, "AS", 2) && isasciidigit(query[2])) {
+	if (is_asn(query, 0, NULL)) {
 	    strcat(buf, "a ");
 	    strcat(buf, query + 2);
 	} else if (myinet_aton(query) || strchr(query, ':')) {
@@ -716,8 +742,12 @@ char *queryformat(const char *server, const char *flags, const char *query)
 
     /* ask for english text */
     if (!isripe && (streq(server, "whois.nic.ad.jp") ||
-	    streq(server, "whois.jprs.jp")) && japanese_locale())
-	strcat(buf, "/e");
+	    streq(server, "whois.jprs.jp")) && japanese_locale()) {
+	/* but not if the user already added the /e flag */
+	char *flag = buf + strlen(buf) - 2;
+	if (!streq(flag, "/e"))
+	    strcat(buf, "/e");
+    }
 
     return buf;
 }
@@ -1472,20 +1502,6 @@ unsigned long myinet_aton(const char *s)
     if (a > 255 || b > 255 || c > 255 || d > 255)
 	return 0;
     return (a << 24) + (b << 16) + (c << 8) + d;
-}
-
-unsigned long asn32_to_long(const char *s)
-{
-    unsigned long a, b;
-    char junk;
-
-    if (!s)
-	return 0;
-    if (sscanf(s, "%lu.%lu%c", &a, &b, &junk) != 2)
-	return 0;
-    if (a > 65535 || b > 65535)
-	return 0;
-    return (a << 16) + b;
 }
 
 int isasciidigit(const char c)
