@@ -59,8 +59,7 @@
 #endif
 
 /* Prototypes */
-void *MALLOC_FREE NONNULL do_nofail(void *ptr, const char *file, const int line)
-;
+void *MALLOC_FREE NONNULL do_nofail(void *ptr, const char *file, const int line);
 char **merge_args(char *args, char *argv[], int *argc);
 
 void NORETURN err_quit(const char *fmt, ...);
