@@ -9,10 +9,10 @@
 #define HIDE_NOT_STARTED -1
 
 /* prototypes */
+int is_asn(const char *, int, const char *);
 char *guess_server(const char *);
 const char *match_config_file(const char *);
 const char *whereas(const unsigned long);
-const char *whereas32(const unsigned long);
 char *queryformat(const char *, const char *, const char *);
 int hide_line(int *hiding, const char *const line);
 char *do_query(const int, const char *);
@@ -26,7 +26,6 @@ void NORETURN alarm_handler(int);
 void NORETURN sighandler(int);
 int japanese_locale(void);
 unsigned long myinet_aton(const char *);
-unsigned long asn32_to_long(const char *);
 int isasciidigit(const char);
 int endstrcaseeq(const char *, const char *);
 int in_domain(const char *, const char *);
