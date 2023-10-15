@@ -17,7 +17,7 @@
 /* Portability macros */
 #ifdef __GNUC__
 # define NORETURN __attribute__((noreturn))
-# define MALLOC_FREE __attribute__((malloc(free)))
+# define MALLOC_FREE __attribute__((malloc()))
 # define NONNULL __attribute__((returns_nonnull))
 #else
 # define NORETURN
