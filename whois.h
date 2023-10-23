@@ -1,4 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <libcx/net.h> //os2
+
 #include "utils.h"
 
 /* 6bone referto: extension */
