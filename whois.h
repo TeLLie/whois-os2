@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifdef __OS2__
 #include <libcx/net.h> //os2
+#endif
 
 #include "utils.h"
 
