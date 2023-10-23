@@ -26,6 +26,10 @@ mkpasswd_OBJECTS := mkpasswd.o utils.o
 # OS/2 EMX
 #whois_LDADD += -lsocket
 #LDFLAGS += -Zexe -Dstrncasecmp=strnicmp
+# 2023-10-22 SHL
+LIBS += -lcx  
+EXEEXT = .exe
+HAVE_ICONV = 1
 
 # OS X
 #whois_LDADD += -liconv
@@ -75,16 +79,16 @@ CPPFLAGS += $(DEFS) $(INCLUDES)
 BASHCOMPDIR ?= $(shell $(PKG_CONFIG) --variable=completionsdir bash-completion 2>/dev/null || echo /etc/bash_completion.d)
 
 ##############################################################################
-all: Makefile.depend whois mkpasswd pos
+all: Makefile.depend whois$(EXEEXT) mkpasswd$(EXEEXT) pos
 
 ##############################################################################
 %.o: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<
 
-whois: $(whois_OBJECTS)
+whois$(EXEEXT): $(whois_OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(whois_LDADD) $(LIBS)
 
-mkpasswd: $(mkpasswd_OBJECTS)
+mkpasswd$(EXEEXT): $(mkpasswd_OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(mkpasswd_LDADD) $(LIBS)
 
 ##############################################################################
@@ -118,26 +122,26 @@ servers_charset.h: servers_charset_list make_servers_charset.pl
 ##############################################################################
 afl:
 	-rm -f Makefile.depend
-	DEFS=-DAFL_MODE=1 AFL_HARDEN=1 $(MAKE) whois CC=afl-gcc HAVE_ICONV=1
+	DEFS=-DAFL_MODE=1 AFL_HARDEN=1 $(MAKE) whois$(EXEEXT) CC=afl-gcc HAVE_ICONV=1
 
 afl-run:
-	nice afl-fuzz -i ../afl_in -o ../afl_out -- ./whois
+	nice afl-fuzz -i ../afl_in -o ../afl_out -- ./whois$(EXEEXT)
 
 ##############################################################################
 install: install-whois install-mkpasswd install-pos install-bashcomp
 
-install-whois: whois$(EXEEXT)
+install-whois: whois
 	$(INSTALL) -d $(BASEDIR)$(prefix)/bin/
 	$(INSTALL) -d $(BASEDIR)$(prefix)/share/man/man1/
 	$(INSTALL) -d $(BASEDIR)$(prefix)/share/man/man5/
-	$(INSTALL) -m 0755 whois$(EXEEXT) $(BASEDIR)$(prefix)/bin/
+	$(INSTALL) -m 0755 whois $(BASEDIR)$(prefix)/bin/
 	$(INSTALL) -m 0644 whois.1 $(BASEDIR)$(prefix)/share/man/man1/
 	$(INSTALL) -m 0644 whois.conf.5 $(BASEDIR)$(prefix)/share/man/man5/
 
-install-mkpasswd: mkpasswd$(EXEEXT)
+install-mkpasswd: mkpasswd
 	$(INSTALL) -d $(BASEDIR)$(prefix)/bin/
 	$(INSTALL) -d $(BASEDIR)$(prefix)/share/man/man1/
-	$(INSTALL) -m 0755 mkpasswd$(EXEEXT) $(BASEDIR)$(prefix)/bin/
+	$(INSTALL) -m 0755 mkpasswd $(BASEDIR)$(prefix)/bin/
 	$(INSTALL) -m 0644 mkpasswd.1 $(BASEDIR)$(prefix)/share/man/man1/
 
 install-pos:
@@ -154,7 +158,7 @@ distclean: clean
 clean:
 	rm -f Makefile.depend as_del.h as32_del.h ip_del.h ip6_del.h \
 		nic_handles.h new_gtlds.h tld_serv.h servers_charset.h \
-		*.o whois mkpasswd
+		*.o whois$(EXEEXT) mkpasswd
 	rm -f po/*.mo
 
 pos:
