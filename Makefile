@@ -130,18 +130,18 @@ afl-run:
 ##############################################################################
 install: install-whois install-mkpasswd install-pos install-bashcomp
 
-install-whois: whois
+install-whois: whois$(EXEEXT)
 	$(INSTALL) -d $(BASEDIR)$(prefix)/bin/
 	$(INSTALL) -d $(BASEDIR)$(prefix)/share/man/man1/
 	$(INSTALL) -d $(BASEDIR)$(prefix)/share/man/man5/
-	$(INSTALL) -m 0755 whois $(BASEDIR)$(prefix)/bin/
+	$(INSTALL) -m 0755 whois$(EXEEXT) $(BASEDIR)$(prefix)/bin/
 	$(INSTALL) -m 0644 whois.1 $(BASEDIR)$(prefix)/share/man/man1/
 	$(INSTALL) -m 0644 whois.conf.5 $(BASEDIR)$(prefix)/share/man/man5/
 
-install-mkpasswd: mkpasswd
+install-mkpasswd: mkpasswd$(EXEEXT)
 	$(INSTALL) -d $(BASEDIR)$(prefix)/bin/
 	$(INSTALL) -d $(BASEDIR)$(prefix)/share/man/man1/
-	$(INSTALL) -m 0755 mkpasswd $(BASEDIR)$(prefix)/bin/
+	$(INSTALL) -m 0755 mkpasswd$(EXEEXT) $(BASEDIR)$(prefix)/bin/
 	$(INSTALL) -m 0644 mkpasswd.1 $(BASEDIR)$(prefix)/share/man/man1/
 
 install-pos:
@@ -158,7 +158,7 @@ distclean: clean
 clean:
 	rm -f Makefile.depend as_del.h as32_del.h ip_del.h ip6_del.h \
 		nic_handles.h new_gtlds.h tld_serv.h servers_charset.h \
-		*.o whois$(EXEEXT) mkpasswd
+		*.o whois$(EXEEXT) mkpasswd$(EXEEXT)
 	rm -f po/*.mo
 
 pos:
