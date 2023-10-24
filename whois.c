@@ -13,7 +13,6 @@
 #define _GNU_SOURCE
 
 /* System library */
-#include <libcx/net.h> //os2
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
