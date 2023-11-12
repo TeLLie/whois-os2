@@ -638,15 +638,9 @@ const char *whereas(const unsigned long asn)
 {
     int i;
 
-    if (asn > 65535) {
-	for (i = 0; as32_assign[i].serv; i++)
-	    if (asn >= as32_assign[i].first && asn <= as32_assign[i].last)
-		return as32_assign[i].serv;
-    } else {
-	for (i = 0; as_assign[i].serv; i++)
-	    if (asn >= as_assign[i].first && asn <= as_assign[i].last)
-		return as_assign[i].serv;
-    }
+    for (i = 0; as_assign[i].serv; i++)
+	if (asn >= as_assign[i].first && asn <= as_assign[i].last)
+	    return as_assign[i].serv;
     return "\x06";
 }
 
@@ -1151,7 +1145,7 @@ int connect_with_timeout(int fd, const struct sockaddr *addr,
     return 0;
 }
 
-void NORETURN alarm_handler(int signum)
+void NORETURN alarm_handler(UNUSED int signum)
 {
     close(sockfd);
     err_quit(_("Timeout."));
