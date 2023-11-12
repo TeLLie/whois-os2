@@ -51,7 +51,7 @@ const char *simple_recode_input_charset;
  */
 char *simple_recode(const iconv_t handle, const char *str)
 {
-    const char *inp = (char *) str;
+    char *inp = (char *) str;
     char *outp, *result;
     size_t inbytes_remaining, outbytes_remaining, outbuf_size;
 
