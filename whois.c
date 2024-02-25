@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999-2022 Marco d'Itri <md@linux.it>.
+ * Copyright (C) Marco d'Itri <md@linux.it>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -409,7 +409,7 @@ int handle_query(const char *hserver, const char *hport,
     }
 
     sockfd = openconn(server, port);
-
+    free(server);
     server = do_query(sockfd, query_string);
     free(query_string);
 
@@ -1503,7 +1503,7 @@ int isasciidigit(const char c)
     return (c >= '0' && c <= '9') ? 1 : 0;
 }
 
-/* http://www.ripe.net/ripe/docs/databaseref-manual.html */
+/* https://www.ripe.net/ripe/docs/databaseref-manual.html */
 
 void NORETURN usage(int error)
 {

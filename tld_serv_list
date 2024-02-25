@@ -1,4 +1,4 @@
-# http://www.iana.org/domains/root/db/
+# https://www.iana.org/domains/root/db/
 #
 # Domain names MUST be lowercase and MUST begin with "." or "-".
 # First match wins.
@@ -127,7 +127,7 @@
 .co	whois.nic.co
 .cr	whois.nic.cr
 .cu	WEB https://www.nic.cu/
-.cv	WEB http://www.dns.cv/
+.cv	whois.nic.cv
 .cw	NONE		# https://www.uoc.cw/cw-registry
 .cx	whois.nic.cx
 .cy	WEB https://www.nic.cy/cy-ui/home
@@ -284,7 +284,7 @@
 .sa	whois.nic.net.sa
 .sb	whois.nic.net.sb
 .sc	whois2.afilias-grs.net		# www.nic.sc
-.sd	whois.sdnic.sd
+.sd	whois.nic.sd
 .se	whois.iis.se
 .sg	whois.sgnic.sg
 .sh	whois.nic.sh

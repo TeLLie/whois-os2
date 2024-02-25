@@ -32,16 +32,6 @@
 # endif
 #endif
 
-#ifdef __OS2__
-/* which versions? */
-# define HAVE_GETOPT_LONG
-# define ENABLE_NLS
-# define HAVE_SHA_CRYPT
-# ifndef LOCALEDIR
-#  define LOCALEDIR "/@unixroot/usr/local/locale"
-# endif
-#endif
-
 /* needs unistd.h */
 #if defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200112L
 # define HAVE_GETADDRINFO
