@@ -99,7 +99,7 @@
 .bi	whois1.nic.bi
 .bj	whois.nic.bj
 #.bl
-.bm	whois.afilias-srs.net
+.bm	whois.nic.bm
 .bn	whois.bnnic.bn
 .bo	whois.nic.bo
 #.bq
@@ -353,7 +353,7 @@
 .vc	whois2.afilias-grs.net
 .ve	whois.nic.ve
 .vg	whois.nic.vg
-.vi	WEB https://secure.nic.vi/whois-lookup/
+.vi	whois.nic.vi
 .vn	WEB http://www.vnnic.vn/en
 .vu	whois.dnrs.vu
 .wf	whois.nic.wf
