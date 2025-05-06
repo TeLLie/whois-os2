@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+
 /*
  * RIPE-like servers.
  * All of them do not understand -V2.0Md with the exception of RA and RIPN.
@@ -19,6 +21,21 @@ const char *ripe_servers[] = {
     NULL
 };
 
+struct server_referral_handler {
+    const char *name;
+    void (*handler)(char **referral_server, const char *buf);
+};
+
+const struct server_referral_handler server_referral_handlers[] = {
+    { "whois.6bone.net",		find_referral_server_6bone },
+    { "whois.apnic.net",		find_referral_server_apnic },
+    { "whois.arin.net",			find_referral_server_arin },
+    { "whois.iana.org",			find_referral_server_iana },
+    { "\x04",				find_referral_server_verisign },
+    { "\x08",				find_referral_server_recursive },
+    { NULL, NULL }
+};
+
 const char *hide_strings[] = {
     "The data in Networksolutions.com's WHOIS database", NULL,
     /* Some registrars like .wang copied the first paragraph of this
@@ -33,7 +50,7 @@ const char *hide_strings[] = {
     "Please register your domains at; http://www.", NULL, /* key-systems.net */
     "%% NOTICE: Access to this information is provided", NULL, /* bookmyname.com */
     "NOTICE: Access to the domain name's information", NULL, /* CORE */
-    "The Data in MarkMonitor.com's", NULL, /* MarkMonitor */
+    "The data in MarkMonitor’s WHOIS", NULL,		/* MarkMonitor */
     "Corporation Service Company(c) (CSC)  The Trusted Partner", "Register your domain name at", /* CSC */
     "The data in Networksolutions.com's", NULL,		/* Networksolutions */
     "# Welcome to the OVH WHOIS Server", "", /* ovh */
@@ -72,8 +89,10 @@ const char *hide_strings[] = {
     "Access to .IN WHOIS information", NULL,			/* in */
     "access to .in whois information", NULL,		/* in registar */
     "% Use of CIRA's WHOIS service is governed by the Terms of Use in its Legal", NULL,	/* sx */
+    "Terms of Use: Access to WHOIS information", NULL,		/* vc */
     "The Service is provided so that you may look", "We may discontinue",/*vu*/
     "NeuStar, Inc., the Registry Administrator for .US", NULL,
+    "; This data is provided ", NULL,			/* whois.1api.net */
 
     NULL, NULL
 };

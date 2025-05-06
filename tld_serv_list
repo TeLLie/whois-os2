@@ -59,9 +59,9 @@
 .biz	whois.nic.biz
 .cat	whois.nic.cat
 .coop	whois.nic.coop
-.info	whois.afilias.net
+.info	RECURSIVE whois.nic.info	# whois.identitydigital.services
 .jobs	whois.nic.jobs
-.mobi	whois.afilias.net
+.mobi	RECURSIVE whois.nic.mobi	# whois.identitydigital.services
 .museum	whois.nic.museum
 .name	whois.nic.name
 .post	whois.dotpostregistry.net
@@ -71,14 +71,14 @@
 .xxx	whois.nic.xxx
 
 .ac	whois.nic.ac
-.ad	NONE		# www.nic.ad
+.ad	whois.nic.ad
 .ae	whois.aeda.net.ae
 .af	whois.nic.af
 .ag	whois.nic.ag
 .ai	whois.nic.ai
 .al	NONE		# www.akep.al
 .am	whois.amnic.net
-.ao	WEB https://www.dns.ao/ao/gca/index.php?id=19	# www.dns.ao
+.ao	WEB https://www.dns.ao/ao/whois/	# www.dns.ao
 .aq	NONE		# 2day.com
 .ar	whois.nic.ar
 .as	whois.nic.as
@@ -109,7 +109,7 @@
 .bv	NONE		# http://www.norid.no/domenenavnbaser/bv-sj.html
 .by	whois.cctld.by
 .bw	whois.nic.net.bw
-.bz	RECURSIVE whois.afilias-grs.info
+.bz	RECURSIVE whois.identitydigital.services
 .co.ca	whois.co.ca
 .ca	whois.cira.ca
 .cc	VERISIGN ccwhois.verisign-grs.com
@@ -159,17 +159,17 @@
 .gf	whois.mediaserv.net
 .gg	whois.gg
 .gh	whois.nic.gh
-.gi	whois2.afilias-grs.net
+.gi	whois.identitydigital.services
 .gl	whois.nic.gl
 .gm	WEB http://www.nic.gm/htmlpages/whois.htm
 .gn	whois.ande.gov.gn
 .gp	whois.nic.gp
-.gq	whois.dominio.gq
-.gr	WEB https://grweb.ics.forth.gr/public/whois
+.gq	WEB http://www.dominio.gq/en/whois.html
+.gr	WEB https://grweb.ics.forth.gr/public/whois?lang=en
 .gs	whois.nic.gs
 .gt	WEB https://www.gt/sitio/?lang=en
 .gu	NONE
-.gw	WEB https://nic.gw/en/whois/
+.gw	WEB https://registar.nic.gw/en/whois/
 .gy	whois.registry.gy
 .hk	whois.hkirc.hk
 .hm	whois.registry.hm
@@ -204,7 +204,7 @@
 .kz	whois.nic.kz
 .la	whois.nic.la
 .lb	whois.lbdr.org.lb
-.lc	whois2.afilias-grs.net
+.lc	RECURSIVE whois.identitydigital.services
 .li	whois.nic.li
 .lk	whois.nic.lk
 .lr	NONE		# http://www.psg.com/dns/lr/
@@ -216,7 +216,7 @@
 .ma	whois.registre.ma
 .mc	NONE	# www.nic.mc
 .md	whois.nic.md
-.me	whois.nic.me	# afilias
+.me	RECURSIVE whois.nic.me	# whois.identitydigital.services
 #.mf
 .mg	whois.nic.mg
 .mh	NONE		# www.nic.net.mh
@@ -253,15 +253,15 @@
 .pe	kero.yachay.pe
 .pf	whois.registry.pf
 .pg	NONE	# http://www.unitech.ac.pg/
-.edu.ph	WEB https://services.ph.net/dns/query.pl
+.edu.ph	WEB https://services.ph.net/dnshosting/dnshostingquery.pl
 .gov.ph	NONE	# http://dns.gov.ph/
 .ph	WEB https://whois.dot.ph/
 .pk	whois.pknic.net.pk
 .co.pl	whois.co.pl	# "unofficial" SLD
 .pl	whois.dns.pl
 .pm	whois.nic.pm
-.pn	WEB http://www.pitcairn.pn/PnRegistry/whois.html
-.pr	whois.afilias-srs.net
+.pn	WEB https://www.nic.pn/
+.pr	RECURSIVE whois.nic.pr		# whois.identitydigital.services
 .ps	whois.pnina.ps
 .pt	whois.dns.pt
 .pw	whois.nic.pw
@@ -295,7 +295,7 @@
 .sm	whois.nic.sm
 .sn	whois.nic.sn
 .so	whois.nic.so
-.sr	NONE		# www.register.sr
+.sr	NONE		# https://isp.datasur.sr/
 .ss	whois.nic.ss
 .st	whois.nic.st
 .msk.su	whois.flexireg.net
@@ -342,15 +342,12 @@
 #.um
 .fed.us	whois.nic.gov
 .us	whois.nic.us
-.edu.uy	WEB https://www.nic.uy/
 .gub.uy	WEB https://www.dominios.gub.uy/
 .mil.uy	WEB https://www.dominios.gub.uy/
-.net.uy	WEB https://www.nic.uy/
-.org.uy	WEB https://www.nic.uy/
-.uy	WEB https://nic.com.uy/v2/consulta-whois
+.uy	WEB https://www.nic.uy/
 .uz	whois.cctld.uz
 .va	NONE
-.vc	whois2.afilias-grs.net
+.vc	RECURSIVE whois.identitydigital.services
 .ve	whois.nic.ve
 .vg	whois.nic.vg
 .vi	whois.nic.vi
@@ -368,7 +365,7 @@
 .net.za	net-whois.registry.net.za
 .org.za	org-whois.registry.net.za
 .web.za	web-whois.registry.net.za
-.za	NONE		# https://www.nic.za/za-domains/
+.za	whois.nic.za
 .zm	whois.zicta.zm
 .zw	NONE		# http://www.zispa.co.zw/
 
@@ -418,14 +415,14 @@
 .xn--mgbtx2b		whois.cmc.iq		# Iraq
 .xn--mgbx4cd0ab		whois.mynic.my		# Malaysia AW
 .xn--mix891f		WEB https://www.monic.mo/monic/faces/whois # Macao
-.xn--node		whois.itdc.ge		# Georgia
+.xn--node		WEB http://რეგისტრაცია.გე/	# Georgia
 .xn--o3cw4h		whois.thnic.co.th	# Thailand
 .xn--ogbpf8fl		whois.tld.sy		# Syria
 .xn--p1ai		whois.tcinet.ru		# Russian Federation
 .xn--pgbs0dh		whois.ati.tn		# Tunisia
 .xn--q7ce6a		whois.nic.la		# Lao
 .xn--qxa6a		whois.eu		# European Union, Greek
-.xn--qxam		WEB https://grweb.ics.forth.gr/public/whois # Greece
+.xn--qxam		WEB https://grweb.ics.forth.gr/public/whois?lang=en # Greece
 .xn--rvc1e0am3e		whois.registry.in	# India
 .xn--s9brj9c		whois.registry.in	# India, Punjabi
 .xn--wgbh1c		whois.dotmasr.eg	# Egypt

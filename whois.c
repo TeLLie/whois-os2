@@ -40,6 +40,14 @@
 #include <idna.h>
 #endif
 
+/* prototypes referenced in data.h */
+static void find_referral_server_6bone(char **, const char *);
+static void find_referral_server_apnic(char **, const char *);
+static void find_referral_server_arin(char **, const char *);
+static void find_referral_server_iana(char **, const char *);
+static void find_referral_server_recursive(char **, const char *);
+static void find_referral_server_verisign(char **, const char *);
+
 /* Application-specific */
 #include "version.h"
 #include "data.h"
@@ -311,7 +319,7 @@ int handle_query(const char *hserver, const char *hport,
 	const char *query, const char *flags)
 {
     char *server = NULL, *port = NULL;
-    char *p, *query_string;
+    char *p, *query_string, *old_server, *new_server;
 
     if (hport) {
 	server = strdup(hserver);
@@ -344,18 +352,18 @@ int handle_query(const char *hserver, const char *hport,
 	case 4:
 	    if (verb)
 		printf(_("Using server %s.\n"), server + 1);
-	    sockfd = openconn(server + 1, NULL);
-	    free(server);
-	    server = query_crsnic(sockfd, query);
+	    old_server = server;
+	    server = query_verisign(server, NULL, query);
+	    free(old_server);
 	    if (no_recursion && server)
 		server[0] = '\0';
 	    break;
 	case 8:
 	    if (verb)
 		printf(_("Using server %s.\n"), server + 1);
-	    sockfd = openconn(server + 1, NULL);
-	    free(server);
-	    server = query_afilias(sockfd, query);
+	    old_server = server;
+	    server = query_server(server, NULL, query);
+	    free(old_server);
 	    if (no_recursion && server)
 		server[0] = '\0';
 	    break;
@@ -388,9 +396,8 @@ int handle_query(const char *hserver, const char *hport,
 	case 0x0E:
 	    if (verb)
 		printf(_("Using server %s.\n"), "whois.iana.org");
-	    sockfd = openconn("whois.iana.org", NULL);
 	    free(server);
-	    server = query_iana(sockfd, query);
+	    server = query_server("whois.iana.org", NULL, query);
 	    break;
 	default:
 	    break;
@@ -408,15 +415,17 @@ int handle_query(const char *hserver, const char *hport,
 	printf(_("Query string: \"%s\"\n\n"), query_string);
     }
 
-    sockfd = openconn(server, port);
+    new_server = query_server(server, port, query_string);
     free(server);
-    server = do_query(sockfd, query_string);
+    if (port)
+	free(port);
     free(query_string);
 
     /* recursion is fun */
-    if (!no_recursion && server && !strchr(query, ' ')) {
-	printf(_("\n\nFound a referral to %s.\n\n"), server);
-	handle_query(server, NULL, query, flags);
+    if (!no_recursion && new_server && !strchr(query, ' ')) {
+	printf(_("\n\nFound a referral to %s.\n\n"), new_server);
+	handle_query(new_server, NULL, query, flags);
+	free(new_server);
     }
 
     return 0;
@@ -788,55 +797,230 @@ int hide_line(int *hiding, const char *const line)
 	return 0;
 }
 
+static void find_referral_server_6bone(char **referral_server, const char *buf)
+{
+    char nh[256], np[16], nq[1024];
+
+    if (*referral_server)
+	return;
+
+    /* 6bone-style referral:
+     * % referto: whois -h whois.arin.net -p 43 as 1
+     */
+    if (!strneq(buf, "% referto:", 10))
+	return;
+
+    if (sscanf(buf, REFERTO_FORMAT, nh, np, nq) == 3) {
+	/* XXX we are ignoring the new query string */
+	*referral_server = malloc(strlen(nh) + 1 + strlen(np) + 1);
+	sprintf(*referral_server, "%s:%s", nh, np);
+    }
+}
+
+static void find_referral_server_apnic(char **referral_server, const char *buf)
+{
+    /* Possible states of this FSM:
+     * 0: searching for the descr or mnt-by attribute
+     * 1: searching for the mnt-by attribute (descr found)
+     * 2: searching for the descr attribute (mnt-by found)
+     * 3: searching for the end of the object (an empty line)
+     * 4: done: stop searching
+     *
+     * Since the descr attribute is user-provided, consider it only if it
+     * is in an object actually maintained by APNIC.
+     *
+     * If multiple records are returned then it users the referral in the
+     * first valid object found.
+     */
+    static int state = 0;
+    static char *rir_name = NULL;
+    char *p;
+
+    if (state == 4)
+	return;
+
+    if (state <= 2) {
+	if (strneq(buf, "descr:", 6)) {
+	    p = (char *)buf + 6;		/* skip until the colon */
+	    for (; *p == ' ' || *p == '\t'; p++);	/* skip white space */
+	    if (strneq(p, "Transferred to the ", 19)) {
+		rir_name = strdup(p + 19);
+		if ((p = strpbrk(rir_name, " ")))
+		    *p = '\0';
+		if (state == 0)
+		    state = 1;			/* still needs mnt-by */
+		else
+		    state = 3;
+	    }
+	} else if (strneq(buf, "mnt-by:", 7)) {
+	    p = (char *)buf + 7;		/* skip until the colon */
+	    for (; *p == ' ' || *p == '\t'; p++);	/* skip white space */
+	    if (streq(p, "APNIC-STUB")) {
+		if (state == 0)
+		    state = 2;			/* still needs descr */
+		else
+		    state = 3;
+	    }
+	} else if (streq(buf, "")) {
+	    if (state == 1)
+		free(rir_name);
+	    state = 0;			/* start again with a new object */
+	}
+	return;
+    }
+
+    if (state == 3 && streq(buf, "")) {
+	int i;
+	const char *rir_servers[] = {
+	    "AFRINIC",	"whois.afrinic.net",
+	    "ARIN",	"whois.arin.net",
+	    "LACNIC",	"whois.lacnic.net",
+	    "RIPE",	"whois.ripe.net",
+	    NULL,	NULL,
+	};
+
+	state = 4;
+
+	for (i = 0; rir_servers[i]; i += 2)
+	    if (streq(rir_name, rir_servers[i]))
+		*referral_server = strdup(rir_servers[i + 1]);
+	free(rir_name);
+    }
+}
+
+static void find_referral_server_arin(char **referral_server, const char *buf)
+{
+    char *p;
+
+    if (*referral_server)
+	return;
+
+    /* ARIN referrals:
+     * ReferralServer: rwhois://rwhois.fuse.net:4321/
+     * ReferralServer: whois://whois.ripe.net
+     * ReferralServer: whois.ripe.net
+     */
+    if (!strneq(buf, "ReferralServer:", 15))
+	return;
+
+    if ((p = strstr(buf, "rwhois://")))
+	*referral_server = strdup(p + 9);
+    else if ((p = strstr(buf, "whois://")))
+	*referral_server = strdup(p + 8);
+    else
+	*referral_server = strdup(buf + 17);
+    if (*referral_server && (p = strpbrk(*referral_server, "/")))
+	*p = '\0';
+}
+
+static void find_referral_server_iana(char **referral_server, const char *buf)
+{
+    const char *p;
+
+    if (*referral_server)
+	return;
+
+    /* IANA referrals:
+     * refer:        whois.apnic.net
+     */
+    if (!strneq(buf, "refer:", 6))
+	return;
+
+    p = buf + 6;				/* skip until the colon */
+    for (; *p == ' ' || *p == '\t'; p++);	/* skip white space */
+    *referral_server = strdup(p);
+}
+
+static void find_referral_server_recursive(char **referral_server, const char *buf)
+{
+    static int state = 0;
+    const char *p;
+
+    if (*referral_server)
+	return;
+
+    if (state == 0 && strneq(buf, "Domain Name:", 12))
+	state = 1;
+    else if (state == 1 && strneq(buf, "Domain Name:", 12))
+	state = 2;
+    else if (state == 1 && strneq(buf, "Registrar WHOIS Server:", 23)) {
+	p = buf + 23;				/* skip until the colon */
+	for (; *p && *p == ' '; p++);		/* skip the spaces */
+	*referral_server = strdup(p);
+	state = 2;
+    }
+}
+
+static void find_referral_server_verisign(char **referral_server, const char *buf)
+{
+    static int state = 0;
+    const char *p;
+
+    if (*referral_server)
+	return;
+
+    /* If there are multiple matches only the server of the first record
+     * is queried */
+    if (state == 0 && strneq(buf, "   Domain Name:", 15)) {
+	state = 1;
+    } else if (state == 0 && strneq(buf, "   Server Name:", 15)) {
+	*referral_server = strdup("");
+	state = 2;
+    } else if (state == 1 && strneq(buf, "   Registrar WHOIS Server:", 26)) {
+	p = buf + 26;				/* skip until the colon */
+	for (; *p && *p == ' '; p++);		/* skip the spaces */
+	*referral_server = strdup(p);
+	state = 2;
+    }
+}
+
 /* returns a string which should be freed by the caller, or NULL */
-char *do_query(const int sock, const char *query)
+char *query_server(const char *server, const char *port, const char *query)
 {
     char *temp, *p, buf[2000];
     FILE *fi;
     int hide = hide_discl;
+    int sock, i;
     char *referral_server = NULL;
+    void (*referral_handler)(char **referral_server, const char *buf) = NULL;
 
     temp = malloc(strlen(query) + 2 + 1);
     strcpy(temp, query);
     strcat(temp, "\r\n");
 
+    for (i = 0; server_referral_handlers[i].name; i++) {
+	/* If the first character is not printable then it represents
+	 * a general category of servers in the list.
+	 */
+	if (server[0] < ' ' &&
+		   strneq(server_referral_handlers[i].name, server, 1)) {
+	    server++;
+	    referral_handler = server_referral_handlers[i].handler;
+	    break;
+	} else if (streq(server_referral_handlers[i].name, server)) {
+	    referral_handler = server_referral_handlers[i].handler;
+	    break;
+	}
+    }
+
+    sock = openconn(server, port);
     fi = fdopen(sock, "r");
+    if (!fi)
+	err_sys("fdopen");
     if (write(sock, temp, strlen(temp)) < 0)
 	err_sys("write");
     free(temp);
 
     while (fgets(buf, sizeof(buf), fi)) {
-	/* 6bone-style referral:
-	 * % referto: whois -h whois.arin.net -p 43 as 1
-	 */
-	if (!referral_server && strneq(buf, "% referto:", 10)) {
-	    char nh[256], np[16], nq[1024];
+	if ((p = strpbrk(buf, "\r\n")))		/* remove the trailing CR/LF */
+	    *p = '\0';
 
-	    if (sscanf(buf, REFERTO_FORMAT, nh, np, nq) == 3) {
-		/* XXX we are ignoring the new query string */
-		referral_server = malloc(strlen(nh) + 1 + strlen(np) + 1);
-		sprintf(referral_server, "%s:%s", nh, np);
-	    }
-	}
-
-	/* ARIN referrals:
-	 * ReferralServer: rwhois://rwhois.fuse.net:4321/
-	 * ReferralServer: whois://whois.ripe.net
-	 */
-	if (!referral_server && strneq(buf, "ReferralServer:", 15)) {
-	    if ((p = strstr(buf, "rwhois://")))
-		referral_server = strdup(p + 9);
-	    else if ((p = strstr(buf, "whois://")))
-		referral_server = strdup(p + 8);
-	    if (referral_server && (p = strpbrk(referral_server, "/\r\n")))
-		*p = '\0';
-	}
+	if (referral_handler)
+	    referral_handler(&referral_server, buf);
 
 	if (hide_line(&hide, buf))
 	    continue;
 
-	if ((p = strpbrk(buf, "\r\n")))
-	    *p = '\0';
 	recode_fputs(buf, stdout);
 	fputc('\n', stdout);
     }
@@ -852,13 +1036,11 @@ char *do_query(const int sock, const char *query)
     return referral_server;
 }
 
-char *query_crsnic(const int sock, const char *query)
+char *query_verisign(const char *server, const char *port, const char *query)
 {
-    char *temp, *p, buf[2000];
-    FILE *fi;
-    int hide = hide_discl;
+    char *temp, *p;
+    int sock;
     char *referral_server = NULL;
-    int state = 0;
     int dotscount = 0;
 
     temp = malloc(strlen("domain ") + strlen(query) + 2 + 1);
@@ -872,140 +1054,9 @@ char *query_crsnic(const int sock, const char *query)
     if (dotscount == 1 && !strpbrk(query, "=~ "))
 	strcpy(temp, "domain ");
     strcat(temp, query);
-    strcat(temp, "\r\n");
 
-    fi = fdopen(sock, "r");
-    if (write(sock, temp, strlen(temp)) < 0)
-	err_sys("write");
+    referral_server = query_server(server, port, temp);
     free(temp);
-
-    while (fgets(buf, sizeof(buf), fi)) {
-	/* If there are multiple matches only the server of the first record
-	   is queried */
-	if (state == 0 && strneq(buf, "   Domain Name:", 15))
-	    state = 1;
-	if (state == 0 && strneq(buf, "   Server Name:", 15)) {
-	    referral_server = strdup("");
-	    state = 2;
-	}
-	if (state == 1 && strneq(buf, "   Registrar WHOIS Server:", 26)) {
-	    for (p = buf; *p != ':'; p++);	/* skip until the colon */
-	    for (p++; *p == ' '; p++);		/* skip the spaces */
-	    referral_server = strdup(p);
-	    if ((p = strpbrk(referral_server, "\r\n ")))
-		*p = '\0';
-	    state = 2;
-	}
-
-	/* the output must not be hidden or no data will be shown for
-	   host records and not-existing domains */
-	if (hide_line(&hide, buf))
-	    continue;
-
-	if ((p = strpbrk(buf, "\r\n")))
-	    *p = '\0';
-	recode_fputs(buf, stdout);
-	fputc('\n', stdout);
-    }
-
-    if (ferror(fi))
-	err_sys("fgets");
-    fclose(fi);
-
-    return referral_server;
-}
-
-char *query_afilias(const int sock, const char *query)
-{
-    char *temp, *p, buf[2000];
-    FILE *fi;
-    int hide = hide_discl;
-    char *referral_server = NULL;
-    int state = 0;
-
-    temp = malloc(strlen(query) + 2 + 1);
-    strcpy(temp, query);
-    strcat(temp, "\r\n");
-
-    fi = fdopen(sock, "r");
-    if (write(sock, temp, strlen(temp)) < 0)
-	err_sys("write");
-    free(temp);
-
-    while (fgets(buf, sizeof(buf), fi)) {
-	/* If multiple attributes are returned then use the first result.
-	   This is not supposed to happen. */
-	if (state == 0 && strneq(buf, "Domain Name:", 12))
-	    state = 1;
-	if (state == 1 && strneq(buf, "Registrar WHOIS Server:", 23)) {
-	    for (p = buf; *p != ':'; p++);	/* skip until colon */
-	    for (p++; *p == ' '; p++);		/* skip colon and spaces */
-	    referral_server = strdup(p);
-	    if ((p = strpbrk(referral_server, "\r\n ")))
-		*p = '\0';
-	    state = 2;
-	}
-
-	/* the output must not be hidden or no data will be shown for
-	   host records and not-existing domains */
-	if (hide_line(&hide, buf))
-	    continue;
-
-	if ((p = strpbrk(buf, "\r\n")))
-	    *p = '\0';
-	recode_fputs(buf, stdout);
-	fputc('\n', stdout);
-    }
-
-    if (ferror(fi))
-	err_sys("fgets");
-    fclose(fi);
-
-    if (hide > HIDE_NOT_STARTED && hide != HIDE_TO_THE_END)
-	err_quit(_("Catastrophic error: disclaimer text has been changed.\n"
-		   "Please upgrade this program.\n"));
-
-    return referral_server;
-}
-
-char *query_iana(const int sock, const char *query)
-{
-    char *temp, *p, buf[2000];
-    FILE *fi;
-    char *referral_server = NULL;
-    int state = 0;
-
-    temp = malloc(strlen(query) + 2 + 1);
-    strcpy(temp, query);
-    strcat(temp, "\r\n");
-
-    fi = fdopen(sock, "r");
-    if (write(sock, temp, strlen(temp)) < 0)
-	err_sys("write");
-    free(temp);
-
-    while (fgets(buf, sizeof(buf), fi)) {
-	/* If multiple attributes are returned then use the first result.
-	   This is not supposed to happen. */
-	if (state == 0 && strneq(buf, "refer:", 6)) {
-	    for (p = buf; *p != ':'; p++);	/* skip until colon */
-	    for (p++; *p == ' '; p++);		/* skip colon and spaces */
-	    referral_server = strdup(p);
-	    if ((p = strpbrk(referral_server, "\r\n ")))
-		*p = '\0';
-	    state = 2;
-	}
-
-	if ((p = strpbrk(buf, "\r\n")))
-	    *p = '\0';
-	recode_fputs(buf, stdout);
-	fputc('\n', stdout);
-    }
-
-    if (ferror(fi))
-	err_sys("fgets");
-    fclose(fi);
-
     return referral_server;
 }
 
@@ -1257,6 +1308,12 @@ char *normalize_domain(const char *dom)
     }
 
 #if defined HAVE_LIBIDN || defined HAVE_LIBIDN2
+    /* A leading ! means that this probably is a RADB query, so skip IDN
+     * processing because it would lower-case the command characters.
+     */
+    if (*ret == '!')
+	return ret;
+
     /* find the start of the last word if there are spaces in the query */
     for (p = ret; *p; p++)
 	if (*p == ' ')
