@@ -1,4 +1,6 @@
-# server name		charset		optional parameters
+# server name		encoding	optional parameters
+whois.afrinic.net	utf-8
+whois.apnic.net		iso-8859-1
 whois.cat		utf-8		-C UTF-8
 whois.conac.cn		utf-8
 whois.corenic.net	utf-8		-C UTF-8
@@ -6,7 +8,7 @@ whois.online.rs.corenic.net	utf-8	-C UTF-8
 whois.site.rs.corenic.net	utf-8	-C UTF-8
 whois.lacnic.net	utf-8
 whois.museum		utf-8		-C UTF-8
-whois.ripe.net		iso-8859-1
+whois.ripe.net		utf-8		--charset UTF-8
 
 whois.nic.llyw.cymru	utf-8
 whois.nic.gov.scot	utf-8
@@ -20,7 +22,6 @@ whois.cira.ca		utf-8
 whois.nic.ch		utf-8
 whois.nic.cl		utf-8
 whois.cnnic.cn		utf-8
-cwhois.cnnic.cn		utf-8
 whois.nic.cz		utf-8
 whois.denic.de		utf-8
 whois.enum.denic.de	utf-8
