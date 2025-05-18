@@ -45,7 +45,7 @@
 .gov.wales	whois.nic.gov.wales
 
 .edu	whois.educause.edu
-.gov	whois.dotgov.gov
+.gov	whois.nic.gov
 .int	whois.iana.org
 .mil	NONE
 
@@ -60,7 +60,7 @@
 .cat	whois.nic.cat
 .coop	whois.nic.coop
 .info	RECURSIVE whois.nic.info	# whois.identitydigital.services
-.jobs	whois.nic.jobs
+.jobs	NONE
 .mobi	RECURSIVE whois.nic.mobi	# whois.identitydigital.services
 .museum	whois.nic.museum
 .name	whois.nic.name
@@ -230,7 +230,7 @@
 .mr	whois.nic.mr
 .ms	whois.nic.ms
 .mt	whois.nic.org.mt
-.mu	whois.nic.mu
+.mu	whois.tld.mu
 .mv	NONE		# NIC? www.dhiraagu.com.mv
 .mw	whois.nic.mw
 .mx	whois.mx
@@ -252,7 +252,7 @@
 .pa	WEB http://www.nic.pa/en
 .pe	kero.yachay.pe
 .pf	whois.registry.pf
-.pg	NONE	# http://www.unitech.ac.pg/
+.pg	whois.nic.pg	# https://www.unitech.ac.pg/icts-dns/
 .edu.ph	WEB https://services.ph.net/dnshosting/dnshostingquery.pl
 .gov.ph	NONE	# http://dns.gov.ph/
 .ph	WEB https://whois.dot.ph/
@@ -385,8 +385,8 @@
 .xn--clchc0ea0b2g2a9gcd	whois.ta.sgnic.sg	# Singapore, Tamil
 .xn--d1alf		whois.marnet.mk		# Macedonia
 .xn--e1a4c		whois.eu		# European Union, Cyrillic
-.xn--fiqs8s		cwhois.cnnic.cn		# China, Simplified Chinese
-.xn--fiqz9s		cwhois.cnnic.cn		# China, Traditional Chinese
+.xn--fiqs8s		whois.cnnic.cn		# China, Simplified Chinese
+.xn--fiqz9s		whois.cnnic.cn		# China, Traditional Chinese
 .xn--fpcrj9c3d		whois.registry.in	# India, Telugu
 .xn--fzc2c9e2c		whois.nic.lk		# Sri Lanka, Sinhala
 .xn--gecrj9c		whois.registry.in	# India, Gujarati
