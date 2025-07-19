@@ -26,6 +26,7 @@
 /* which versions? */
 # define HAVE_GETOPT_LONG
 # define HAVE_GETADDRINFO
+# define HAVE_READPASSPHRASE
 # define ENABLE_NLS
 # ifndef LOCALEDIR
 #  define LOCALEDIR "/usr/local/share/locale"
@@ -40,6 +41,9 @@
 # ifndef LOCALEDIR
 #  define LOCALEDIR "/@unixroot/usr/local/locale"
 # endif
+
+#if defined OpenBSD
+# define HAVE_READPASSPHRASE
 #endif
 
 /* needs unistd.h */
@@ -51,6 +55,7 @@
 #if defined __APPLE__ && defined __MACH__
 # define HAVE_GETOPT_LONG
 # define HAVE_GETADDRINFO
+# define HAVE_READPASSPHRASE
 # define HAVE_BSDICRYPT
 #endif
 
