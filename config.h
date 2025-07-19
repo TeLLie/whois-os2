@@ -41,6 +41,7 @@
 # ifndef LOCALEDIR
 #  define LOCALEDIR "/@unixroot/usr/local/locale"
 # endif
+#endif
 
 #if defined OpenBSD
 # define HAVE_READPASSPHRASE
