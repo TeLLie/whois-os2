@@ -120,7 +120,7 @@
 .ci	whois.nic.ci
 .ck	NONE
 .cl	whois.nic.cl
-.cm	whois.netcom.cm
+.cm	whois.nic.cm
 .edu.cn	whois.edu.cn
 .cn	whois.cnnic.cn
 .uk.co	whois.uk.co
@@ -316,7 +316,7 @@
 .tl	whois.nic.tl
 .tm	whois.nic.tm
 .tn	whois.ati.tn
-.to	whois.tonic.to
+.to	whois.tonicregistry.to
 .tr	whois.trabis.gov.tr
 .tt	WEB https://www.nic.tt/cgi-bin/search.pl
 .tv	RECURSIVE whois.nic.tv
